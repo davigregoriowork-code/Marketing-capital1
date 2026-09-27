@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="pt-BR">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0e14">
+  <title>Capital Market</title>
+  <style>
+:root{
+  --bg:#0a0e14;--panel:#111823;--panel2:#161f2c;--line:#233042;
+  --txt:#e7edf5;--muted:#7f92a8;--up:#2fd989;--down:#ff5d6c;
+  --accent:#3aa0ff;--gold:#e8b95f;
+  font-family:"Segoe UI",system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--txt)}
+body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+nav{width:178px;background:var(--panel);border-right:1px solid var(--line);padding:14px 8px;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+nav h1{font-size:15px;letter-spacing:.3px;margin:4px 8px 14px;color:var(--gold)}
+nav button{display:block;width:100%;text-align:left;background:none;border:0;color:var(--muted);padding:9px 10px;border-radius:7px;font-size:13px;margin-bottom:2px}
+nav button.active,nav button:hover{background:var(--panel2);color:var(--txt)}
+main{flex:1;padding:16px 20px;max-width:100%;overflow-x:hidden}
+.topbar{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+.pill{font-size:12px;color:var(--muted)}
+.pill b{color:var(--txt);font-variant-numeric:tabular-nums}
+.speedbtns{margin-left:auto;display:flex;gap:4px;flex-wrap:wrap}
+.speedbtns button{background:var(--panel2);border:1px solid var(--line);color:var(--muted);padding:5px 9px;border-radius:6px;font-size:12px}
+.speedbtns button.active{color:var(--accent);border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;margin-bottom:16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.card .lbl{font-size:11px;color:var(--muted);margin-bottom:4px}
+.card .val{font-size:19px;font-variant-numeric:tabular-nums}
+.up{color:var(--up)!important}.down{color:var(--down)!important}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--muted);font-weight:500;padding:7px 8px;border-bottom:1px solid var(--line);font-size:11px}
+td{padding:8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+tbody tr:hover{background:var(--panel2);cursor:pointer}
+section{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:14px}
+section h2{font-size:14px;margin:0 0 10px;font-weight:600}
+.row{display:flex;gap:14px;flex-wrap:wrap}.col{flex:1;min-width:260px}
+canvas{width:100%;height:180px;display:block}
+input,select{background:var(--panel2);border:1px solid var(--line);color:var(--txt);padding:8px;border-radius:6px;font-size:13px;max-width:100%}
+button.act{background:var(--accent);border:0;color:#04121f;padding:8px 12px;border-radius:6px;font-weight:600;font-size:13px}
+button.sell{background:var(--down);color:#1a0507}
+  nav{width:62px;padding:10px 5px}
+  nav h1{display:none}
+  nav button{font-size:10px;text-align:center;padding:9px 2px}
+  main{padding:10px}
+  .col{min-width:100%}
+  .topbar{gap:8px}
+  table{font-size:12px}
+  th,td{padding:7px 5px}
+}
+
+/* Capital Market V2 - mobile-first layer */
+:root{--shadow:0 14px 40px rgba(0,0,0,.18)}
+main{padding:14px clamp(10px,2vw,24px)}
+.topbar{position:sticky;top:0;z-index:15;backdrop-filter:blur(12px);box-shadow:var(--shadow)}
+.card,section{box-shadow:0 5px 20px rgba(0,0,0,.10)}
+input,select{min-height:42px;padding:9px 11px}
+button.act,.speedbtns button,button.secondary{min-height:42px;touch-action:manipulation}
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.form-grid{display:grid;gap:12px}.field{display:grid;gap:6px}.field label{font-size:12px;color:var(--muted)}
+.kpi-grid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}
+.login-backdrop{position:fixed;inset:0;background:rgba(3,7,12,.84);backdrop-filter:blur(12px);z-index:100;display:flex;align-items:center;justify-content:center;padding:18px}
+.login-card{width:min(480px,100%);background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 25px 80px rgba(0,0,0,.45)}
+.login-card h1{font-size:25px;margin:10px 0 6px;color:var(--gold)}.login-card p{color:var(--muted);line-height:1.5}
+.status{display:inline-flex;padding:5px 9px;border-radius:999px;background:var(--panel2);color:var(--muted);font-size:10px;letter-spacing:.7px}
+.full{width:100%}.danger{background:transparent!important;border:1px solid var(--down)!important;color:var(--down)!important}
+.metric{font-size:24px;font-weight:650}.subtle{color:var(--muted);font-size:12px}.order-panel input,.order-panel select{width:100%}
+@media(max-width:700px){nav{width:70px;padding:8px 5px}nav button{font-size:10px;padding:9px 2px}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.col{min-width:0!important}.topbar .speedbtns{width:100%;margin-left:0;overflow:auto;flex-wrap:nowrap}.speedbtns button{flex:0 0 auto}section{padding:11px;margin-bottom:10px}.card{padding:10px}.card .val{font-size:16px}}
+
+</style>
+ </head>
+ <body>
+  <div class="app">
+   <nav>
+    <h1>Capital Market</h1>
+    <button data-p="inicio" class="active">Início</button>
+    <button data-p="acoes">Ações</button>
+    <button data-p="rendafixa">Renda Fixa</button>
+    <button data-p="moedas">Moedas</button>
+    <button data-p="cripto">Cripto</button>
+    <button data-p="banco">Banco</button>
+    <button data-p="cartao">Cartão</button>
+    <button data-p="dividas">Dívidas</button>
+    <button data-p="tributos">Tributos</button>
+    <button data-p="empresas">Empresas</button>
+    <button data-p="carteira">Carteira</button>
+    <button data-p="noticias">Notícias</button>
+    <button data-p="economia">Economia</button>
+   </nav>
+   <main>
+  </div>
+
+  <div id="loginOverlay" class="login-backdrop">
+   <div class="login-card">
+    <div class="status">CAPITAL MARKET</div>
+    <h1>Entrar no mercado</h1>
+    <p>Crie seu perfil e escolha o país. O capital inicial é exatamente o equivalente a US$ 500 na moeda local.</p>
+    <div class="form-grid">
+     <div class="field"><label for="loginName">Nome</label><input id="loginName" maxlength="32" autocomplete="name" placeholder="Seu nome"></div>
+     <div class="field"><label for="loginCountry">País</label><select id="loginCountry"><option value="BR">Brasil</option><option value="US">Estados Unidos</option><option value="JP">Japão</option><option value="DE">Alemanha</option><option value="UK">Reino Unido</option></select></div>
+     <div class="field"><label for="devCode">Código de acesso DEV (opcional)</label><input id="devCode" placeholder="Somente para testes"></div>
+     <button class="act full" id="enterMarket">Entrar no mercado</button>
+     <button class="secondary full" id="newGameFromLogin" style="display:none">Novo jogo</button>
+    </div>
+   </div>
+  </div>
+  <div id="toast" class="toast"></div>
+  <div id="modal" class="modal">
+   <div class="modalbox" id="modalBox"></div>
+  </div>
+  <script>
+"use strict";
+
+/* =========================
+   UTILIDADES
+========================= */
+const $ = id => document.getElementById(id);
+function money(n){const c=window.__CM_CCY__||"BRL";return c+" "+Number(n||0).toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});}
+const num = n => Number(n||0).toLocaleString("pt-BR",{maximumFractionDigits:2});
+const clamp = (x,a,b) => Math.max(a,Math.min(b,x));
+const rnd = (a,b) => a + Math.random()*(b-a);
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const esc = s => String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+
+function toast(msg){
+  const t=$("toast"); t.textContent=msg; t.classList.add("show");
+  clearTimeout(toast.timer); toast.timer=setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+/* =========================
+   ESTADO
+========================= */
+const S={
+  tick:0,speed:5,paused:false,currentPage:"inicio",selectedStock:null,
+  player:{
+    cash:100000,bank:0,loans:0,
+    stocks:{},stockCost:{},
+    bonds:[],crypto:{},history:[],netWorth:100000,
+    _stockVal:0,_bondVal:0,_cryptoVal:0,
+    name:"",countryId:"BR",currency:"BRL",fxRate:5,
+    stockBasis:{},cryptoBasis:{},debts:[],card:null,score:650,
+    taxes:{paid:0,accrued:0,byType:{income:0,capital:0,interest:0,profit:0}},taxLog:[],
+    companies:[],ipos:[],income:0,expenses:0
+  },
+  news:[],
+  orders:[],
+  lastInterestTick:0
+};
+
+const countries=[
+  {id:"BR",name:"Brasil",ccy:"BRL",gdp:2100,inflation:6.2,unemployment:8.5,rate:12,growth:2.1,debt:75,confidence:52,fx:5},
+  {id:"US",name:"Estados Unidos",ccy:"USD",gdp:26000,inflation:2.8,unemployment:4,rate:4.5,growth:2.4,debt:120,confidence:61,fx:1},
+  {id:"JP",name:"Japão",ccy:"JPY",gdp:4200,inflation:.9,unemployment:2.6,rate:.3,growth:.6,debt:230,confidence:48,fx:150},
+  {id:"DE",name:"Alemanha",ccy:"EUR",gdp:4400,inflation:2.1,unemployment:5.4,rate:3.2,growth:1.1,debt:65,confidence:57,fx:.92},
+  {id:"UK",name:"Reino Unido",ccy:"GBP",gdp:3300,inflation:3,unemployment:4.3,rate:4,growth:1.4,debt:98,confidence:53,fx:.78}
+];
+
+const sectors=["Bancos","Tecnologia","Energia","Mineração","Indústria","Varejo","Saúde","Telecom","Agricultura","Transporte"];
+const names=["Alpha","Nova","Vetor","Prisma","Zenith","Orion","Solaris","Meridian","Atlas","Cobalt","Titanium","Norte","Cardinal","Vortex","Apex","Lumen","Quantum","Fenix","Aurora","Bastion"];
+let companies=[];
+
+for(let i=0;i<20;i++){
+  const country=countries[i%countries.length], sector=sectors[i%sectors.length];
+  const price=+rnd(8,220).toFixed(2), shares=Math.floor(rnd(5,80))*1e6;
+  companies.push({
+    id:"C"+i,ticker:(names[i].slice(0,3)+i).toUpperCase(),
+    name:names[i]+" "+sector+" S.A.",country:country.id,sector,
+    price,lastPrice:price,open:price,high:price,low:price,shares,volume:0,
+    revenue:price*shares/1e6*rnd(.4,1.2),
+    profit:price*shares/1e6*rnd(.02,.15),
+    debt:price*shares/1e6*rnd(.1,.6),
+    growth:rnd(-2,15),divYield:rnd(0,6),volatility:rnd(.4,2.2),
+    hist:[price],bids:[],asks:[]
+  });
+}
+
+function seedBook(c){
+  c.bids=[];c.asks=[];
+  for(let i=1;i<=8;i++){
+    c.bids.push({price:+(c.price*(1-.0018*i)).toFixed(2),qty:Math.floor(rnd(100,800))});
+    c.asks.push({price:+(c.price*(1+.0018*i)).toFixed(2),qty:Math.floor(rnd(100,800))});
+  }
+}
+companies.forEach(seedBook);
+
+const bonds=countries.map(c=>({
+  id:"B-"+c.id,issuer:"Tesouro "+c.name,country:c.id,ccy:c.ccy,
+  rate:c.rate,years:c.id==="US"?10:5,face:1000,price:1000
+}));
+
+const cryptos=[
+  {id:"BTC",name:"BitCore",tk:"BTC*",price:38000,supply:19e6,cap:0,volat:3.5,hist:[38000]},
+  {id:"ETH",name:"Etheria",tk:"ETH*",price:2200,supply:120e6,cap:0,volat:3,hist:[2200]},
+  {id:"NVA",name:"NovaCoin",tk:"NVA",price:.85,supply:5e9,cap:0,volat:5,hist:[.85]},
+  {id:"MTA",name:"MetaCoin",tk:"MTA",price:12.4,supply:400e6,cap:0,volat:4.2,hist:[12.4]}
+];
+cryptos.forEach(c=>c.cap=c.price*c.supply);
+
+const agents=Array.from({length:50},()=>({
+  type:pick(["conservador","trader","fundamentalista","especulador"]),
+  cash:rnd(50000,900000)
+}));
+
+/* =========================
+   LIVRO DE OFERTAS
+========================= */
+function bestBid(c){return c.bids.length?Math.max(...c.bids.map(o=>o.price)):c.price*.995}
+function bestAsk(c){return c.asks.length?Math.min(...c.asks.map(o=>o.price)):c.price*1.005}
+
+function refillBook(c){
+  c.bids=c.bids.filter(o=>o.qty>0);
+  c.asks=c.asks.filter(o=>o.qty>0);
+  while(c.bids.length<8){
+    const p=Math.max(.01,bestBid(c)*(1-rnd(.001,.004)));
+    c.bids.push({price:+p.toFixed(2),qty:Math.floor(rnd(80,600))});
+  }
+  while(c.asks.length<8){
+    const p=bestAsk(c)*(1+rnd(.001,.004));
+    c.asks.push({price:+p.toFixed(2),qty:Math.floor(rnd(80,600))});
+  }
+}
+
+function matchOrder(c,side,limitPrice,qty,market=false,ownerId=null){
+  qty=Math.floor(Number(qty));
+  if(qty<=0)return {filled:0,cost:0,remaining:0};
+
+  const book=side==="buy"?c.asks:c.bids;
+  book.sort((a,b)=>side==="buy"?a.price-b.price:b.price-a.price);
+
+  let remaining=qty,cost=0,filled=0;
+  for(const o of book){
+    if(remaining<=0)break;
+    const crosses=market || (side==="buy"?limitPrice>=o.price:limitPrice<=o.price);
+    if(!crosses)break;
+
+    const q=Math.min(remaining,o.qty);
+    filled+=q; remaining-=q; o.qty-=q;
+    cost+=q*o.price;
+    c.lastPrice=c.price;
+    c.price=o.price;
+    c.high=Math.max(c.high,o.price);
+    c.low=Math.min(c.low,o.price);
+    c.volume+=q;
+    /* Se a oferta consumida pertence a uma ordem pendente do jogador (ordem
+       limitada que ficou no livro), liquida essa fatia imediatamente:
+       o jogador precisa receber o dinheiro (venda) ou as ações (compra)
+       na hora em que sua ordem é executada por outra parte. */
+    if(o.owner==="player" && o.orderId)settlePlayerOrderFill(o.orderId,q,o.price);
+  }
+
+  c.bids=c.bids.filter(o=>o.qty>0);
+  c.asks=c.asks.filter(o=>o.qty>0);
+
+  if(remaining>0 && !market){
+    const own=side==="buy"?c.bids:c.asks;
+    const entry={price:+limitPrice.toFixed(2),qty:remaining};
+    if(ownerId){entry.owner="player";entry.orderId=ownerId;}
+    own.push(entry);
+  }
+
+  refillBook(c);
+  return {filled,cost,remaining};
+}
+
+/* Liquida o preenchimento (total ou parcial) de uma ordem pendente do jogador
+   que estava aguardando no livro de ofertas. Fonte única de verdade: a ordem
+   em S.orders. Sem isso, dinheiro/ações apareciam ou desapareciam do nada
+   quando um agente cruzava com uma ordem limitada do jogador. */
+function settlePlayerOrderFill(orderId,qty,price){
+  const idx=(S.orders||[]).findIndex(o=>o.id===orderId);
+  if(idx<0)return;
+  const order=S.orders[idx];
+  qty=Math.min(qty,order.qty);
+  if(order.side==="buy"){
+    const cost=qty*price;
+    S.player.stocks[order.ticker]=(S.player.stocks[order.ticker]||0)+qty;
+    S.player.stockCost[order.ticker]=(S.player.stockCost[order.ticker]||0)+cost;
+    S.player.stockBasis[order.ticker]=(S.player.stockBasis[order.ticker]||0)+cost;
+  }else{
+    const gain=(price-(order.costPerShare||0))*qty;
+    const tax=applyCapitalTax(gain);
+    S.player.cash+=qty*price-tax;
+  }
+  order.qty-=qty;
+  if(order.qty<=0.0001){
+    S.orders.splice(idx,1);
+    if(a.type==="conservador" && Math.random()<.75)continue;
+
+    const qty=Math.max(1,Math.floor(rnd(20,500)));
+    const p=side==="buy"?bestAsk(c):bestBid(c);
+    matchOrder(c,side,p,qty,true);
+  }
+
+  cryptos.forEach(c=>{
+    const move=((Math.random()-.5)*c.volat + (Math.random()-.5)*c.volat*.5)/100;
+    c.price=Math.max(.0001,+(c.price*(1+move)).toFixed(c.price<10?4:2));
+    c.cap=c.price*c.supply;
+  });
+
+  countries.forEach(c=>{
+    if(c.id==="US")return;
+    const flow=(Math.random()-.48)*.008;
+    c.fx=+(c.fx*(1+flow)).toFixed(4);
+  });
+}
+
+/* =========================
+   MACROECONOMIA
+========================= */
+function triggerEvent(){
+  const c=pick(countries);
+  const type=pick(["growth","inflation","rate","confidence"]);
+  let msg="";
+
+  if(type==="growth"){
+    c.growth=clamp(c.growth+rnd(.2,.7),-5,8);
+    c.confidence=clamp(c.confidence+2,0,100);
+    msg=`${c.name}: atividade econômica veio acima do esperado.`;
+  }else if(type==="inflation"){
+    c.inflation=clamp(c.inflation+rnd(.2,.7),-1,20);
+    c.confidence=clamp(c.confidence-1,0,100);
+    msg=`${c.name}: inflação acelerou no período.`;
+  }else if(type==="rate"){
+    const old=c.rate;
+    c.rate=clamp(c.rate+pick([-.5,.25,.5]),.1,20);
+    msg=`${c.name}: Banco Central alterou a taxa básica de ${old.toFixed(2)}% para ${c.rate.toFixed(2)}%.`;
+  }else{
+    c.confidence=clamp(c.confidence+pick([-5,-3,3,5]),0,100);
+    msg=`${c.name}: mercado revisou as expectativas de confiança.`;
+  }
+
+  if(Math.random()<.55){
+    const pool=companies.filter(x=>x.country===c.id);
+    const co=pick(pool);
+    const shock=(c.rate>10?-.004:.004)*rnd(1,4);
+   TEMPO
+========================= */
+function fmtClock(){
+  const day=Math.floor(S.tick/1440)+1;
+  const hour=Math.floor((S.tick%1440)/60);
+  const min=S.tick%60;
+  const year=Math.floor((day-1)/360)+1;
+  const d=((day-1)%30)+1;
+  const month=Math.floor(((day-1)%360)/30)+1;
+  return `Ano ${year} · M${month} · D${d} · ${String(hour).padStart(2,"0")}:${String(min).padStart(2,"0")}`;
+}
+
+function tick(){
+  S.tick++;agentsTrade();
+  companies.forEach(c=>{const pressure=(Math.random()-.5)*c.volatility/100;c.price=Math.max(.5,+(c.price*(1+pressure)).toFixed(2));c.high=Math.max(c.high,c.price);c.low=Math.min(c.low,c.price);c.hist.push(c.price);if(c.hist.length>300)c.hist.shift()});
+  cryptos.forEach(c=>{c.hist.push(c.price);if(c.hist.length>300)c.hist.shift()});
+  if(S.tick%60===0)updateBonds();
+  if(S.tick%43200===0){accrueMonthly();creditCycle();}
+  if(Math.random()<.025)triggerEvent();
+  processDebtCycle();recalcPortfolio();renderTop();updateLiveAction();
+  if(S.tick%20===0)saveGame(false);
+}
+function recalcPortfolio(){
+  let stockVal=0;Object.entries(S.player.stocks).forEach(([tk,q])=>{const c=companies.find(x=>x.ticker===tk);if(c)stockVal+=c.price*q});
+  let bondVal=0;S.player.bonds.forEach(p=>{const b=bonds.find(x=>x.id===p.id);if(b)bondVal+=b.price*p.qty});
+  let cryptoVal=0;Object.entries(S.player.crypto).forEach(([tk,q])=>{const c=cryptos.find(x=>x.tk===tk);if(c)cryptoVal+=c.price*q});
+  const companyVal=(S.player.companies||[]).reduce((a,x)=>a+(x.equityValue||0),0);
+  const debt=totalDebt();S.player._stockVal=stockVal;S.player._bondVal=bondVal;S.player._cryptoVal=cryptoVal;S.player._debtVal=debt;S.player.netWorth=S.player.cash+S.player.bank+stockVal+bondVal+cryptoVal+companyVal-debt;
+  S.player.history.push(S.player.netWorth);if(S.player.history.length>300)S.player.history.shift();updateScore();
+}
+let loop=null;
+function startLoop(){
+  clearInterval(loop);
+  loop=setInterval(()=>{
+    if(!S.paused)for(let i=0;i<S.speed;i++)tick();
+  },1000);
+}
+
+/* =========================
+   GRÁFICOS
+========================= */
+function sparkline(hist,w=700,h=180){
+  const a=hist?.length?hist:[0,0];
+  const min=Math.min(...a),max=Math.max(...a);
+  const pts=a.map((v,i)=>{
+    const x=i/(a.length-1||1)*w;
+    const y=h-((v-min)/((max-min)||1))*h;
+    return `${x},${y}`;
+  }).join(" ");
+  const col=a[a.length-1]>=a[0]?"#2fd989":"#ff5d6c";
+  return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" style="width:100%;height:100%">
+    <polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2"/>
+  </svg>`;
+}
+
+/* =========================
+   RENDER
+========================= */
+function setPage(p){
+  S.currentPage=p;
+  document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.p===p));
+  render(p);
+}
+
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>setPage(b.dataset.p));
+
+[1,5,10,50,100].forEach(sp=>{
+  const b=document.createElement("button");
+  b.textContent=sp+"x";
+  b.onclick=()=>{
+    S.speed=sp;
+    document.querySelectorAll("#speedBtns button[data-speed]").forEach(x=>x.classList.remove("active"));
+    b.classList.add("active");
+    if(typeof saveGame==="function")saveGame(false);
+  };
+  b.dataset.speed=sp;
+  if(sp===S.speed)b.classList.add("active");
+  $("speedBtns").appendChild(b);
+});
+
+const pause=document.createElement("button");
+pause.textContent="Pausar";pause.className="secondary";
+pause.onclick=()=>{
+  S.paused=!S.paused;
+  pause.textContent=S.paused?"Retomar":"Pausar";
+  if(typeof saveGame==="function")saveGame(false);
+};
+$("speedBtns").prepend(pause);
+
+function stockRows(list){
+  return `<table><thead><tr><th>Ticker</th><th>Empresa</th><th>Preço</th><th>Var.</th><th>Volume</th></tr></thead><tbody>
+  ${list.map(c=>{
+    const v=(c.price-c.open)/c.open*100;
+    return `<tr onclick="selectStock('${c.id}')"><td>${esc(c.ticker)}</td><td>${esc(c.name)}</td><td>${money(c.price)}</td><td class="${v>=0?"up":"down"}">${v>=0?"+":""}${v.toFixed(2)}%</td><td>${num(c.volume)}</td></tr>`;
+  }).join("")}</tbody></table>`;
+}
+
+function selectStock(id){S.selectedStock=id;setPage("acoes");}
+window.selectStock=selectStock;
+
+function pageInicio(){
+  const br=indexFor("BR"),us=indexFor("US"),global=companies.reduce((s,c)=>s+c.price,0)/companies.length;
+  return `<div class="grid">
+    <div class="card"><div class="lbl">Patrimônio</div><div class="val">${money(S.player.netWorth)}</div></div>
+    <div class="card"><div class="lbl">Caixa</div><div class="val">${money(S.player.cash)}</div></div>
+    <div class="card"><div class="lbl">Índice Brasil</div><div class="val">${num(br)}</div></div>
+    <div class="card"><div class="lbl">Índice EUA</div><div class="val">${num(us)}</div></div>
+    <div class="card"><div class="lbl">Índice Global</div><div class="val">${num(global)}</div></div>
+  </div>
+  <div class="row">
+    <div class="col"><section><h2>Principais ativos</h2>${stockRows(companies.slice(0,8))}</section></div>
+    <div class="col"><section><h2>Notícias recentes</h2>${newsHtml(7)}</section></div>
+  </div>
+  <section><h2>Taxas de juros por país</h2>${countryTable()}</section>`;
+}
+
+function indexFor(cid){
+  const set=companies.filter(c=>c.country===cid);
+  return set.reduce((s,c)=>s+c.price,0)/Math.max(1,set.length)*10;
+}
+
+function pageAcoes(){
+  const c=companies.find(x=>x.id===S.selectedStock)||companies[0];S.selectedStock=c.id;const v=(c.price-c.open)/c.open*100,owned=S.player.stocks[c.ticker]||0,avg=owned?(S.player.stockCost[c.ticker]||0)/owned:0;
+  return `<div class="row"><div class="col" style="flex:2"><section><h2>${esc(c.name)} (${esc(c.ticker)}) · ${esc(c.sector)}</h2><div style="font-size:27px" class="${v>=0?"up":"down"}"><span id="liveStockPrice">${money(c.price)}</span> <span id="liveVar" style="font-size:14px">(${v>=0?"+":""}${v.toFixed(2)}%)</span></div><div style="height:180px;margin:10px 0">${sparkline(c.hist)}</div><div class="row"><span class="pill">Máx. <b>${money(c.high)}</b></span><span class="pill">Mín. <b>${money(c.low)}</b></span><span class="pill">Volume <b>${num(c.volume)}</b></span><span class="pill">Bid <b id="liveBid">${money(bestBid(c))}</b></span><span class="pill">Ask <b id="liveAsk">${money(bestAsk(c))}</b></span></div><h2 style="margin-top:15px">Livro de ofertas</h2><div class="row"><div class="col"><b>Compradores</b><table><thead><tr><th>Preço</th><th>Qtd.</th></tr></thead><tbody>${c.bids.slice().sort((a,b)=>b.price-a.price).map(o=>`<tr><td class="up">${money(o.price)}</td><td>${o.qty}</td></tr>`).join("")}</tbody></table></div><div class="col"><b>Vendedores</b><table><thead><tr><th>Preço</th><th>Qtd.</th></tr></thead><tbody>${c.asks.slice().sort((a,b)=>a.price-b.price).map(o=>`<tr><td class="down">${money(o.price)}</td><td>${o.qty}</td></tr>`).join("")}</tbody></table></div></div></section></div><div class="col"><section class="order-panel"><h2>Negociar</h2><div class="notice">Esta tela não é reconstruída durante a digitação. O campo mantém foco e o teclado virtual do Android pode permanecer aberto normalmente.</div><div class="form-grid"><div class="field"><label for="ordQty">Quantidade</label><input id="ordQty" type="number" min="1" step="1" value="100" inputmode="numeric"></div><div class="field"><label for="ordType">Tipo</label><select id="ordType"><option value="market">A mercado</option><option value="limit">Limitada</option></select></div><div class="field" id="priceWrap"><label for="ordPrice">Preço limite</label><input id="ordPrice" type="number" min=".01" step=".01" value="${c.price.toFixed(2)}" inputmode="decimal"></div><div class="row"><button class="act" onclick="playerOrder('buy')">Comprar</button><button class="act sell" onclick="playerOrder('sell')">Vender</button></div><div class="pill">Posição: <b id="liveOwned">${owned}</b> ações · Preço médio: <b>${owned?money(avg):"—"}</b></div></div></section><section><h2>Ordens pendentes</h2>${(S.orders||[]).length?`<table><thead><tr><th>Ticker</th><th>Lado</th><th>Qtd.</th><th>Preço limite</th><th></th></tr></thead><tbody>${S.orders.map(o=>`<tr><td>${esc(o.ticker)}</td><td>${o.side==="buy"?"Compra":"Venda"}</td><td>${o.qty}</td><td>${money(o.price)}</td><td><button class="act sell" onclick="cancelOrder('${o.id}')">Cancelar</button></td></tr>`).join("")}</tbody></table>`:'<div class="empty">Nenhuma ordem pendente.</div>'}</section><section><h2>Empresas</h2>${stockRows(companies)}</section></div></div>`;
+}
+
+function pageRendaFixa(){
+  return `<section><h2>Mercado de Renda Fixa</h2>
+  <div class="notice">O preço de mercado dos títulos varia inversamente com a taxa de juros. Isso permite ganho ou perda antes do vencimento.</div>
+  <table><thead><tr><th>Título</th><th>País</th><th>Moeda</th><th>Taxa</th><th>Prazo</th><th>Preço</th><th></th></tr></thead><tbody>
+  ${bonds.map(b=>`<tr><td>${esc(b.issuer)}</td><td>${b.country}</td><td>${b.ccy}</td><td>${b.rate.toFixed(2)}% a.a.</td><td>${b.years} anos</td><td>${money(b.price)}</td><td><button class="act" onclick="buyBond('${b.id}')">Comprar</button></td></tr>`).join("")}</tbody></table>
+  </section>
+  <section><h2>Meus títulos</h2><table><thead><tr><th>Título</th><th>Qtd.</th><th>Valor</th></tr></thead><tbody>
+  ${S.player.bonds.length?S.player.bonds.map(p=>{const b=bonds.find(x=>x.id===p.id);return `<tr><td>${esc(b.issuer)}</td><td>${p.qty}</td><td>${money(b.price*p.qty)}</td></tr>`}).join(""):`<tr><td colspan="3" class="empty">Nenhum título.</td></tr>`}
+  </tbody></table></section>`;
+}
+window.buyBond=buyBond;
+
+function pageMoedas(){
+  return `<section><h2>Câmbio</h2><div class="notice">As cotações são simuladas por fluxo de compra e venda. O USD é a moeda-base.</div>
+  <table><thead><tr><th>País</th><th>Moeda</th><th>Cotação/USD</th><th>Juros</th><th>Inflação</th></tr></thead><tbody>
+  ${countries.map(c=>`<tr><td>${c.name}</td><td>${c.ccy}</td><td>${c.fx.toFixed(4)}</td><td>${c.rate.toFixed(2)}%</td><td>${c.inflation.toFixed(2)}%</td></tr>`).join("")}</tbody></table></section>`;
+}
+
+function pageCripto(){
+  return `<section><h2>Criptomoedas</h2><table><thead><tr><th>Ativo</th><th>Preço</th><th>Capitalização</th><th></th></tr></thead><tbody>
+  ${cryptos.map(c=>`<tr><td>${c.name} (${c.tk})</td><td>${money(c.price)}</td><td>${money(c.cap)}</td><td>
+  <button class="act" onclick="cryptoTrade('${c.tk}','buy')">Comprar R$1.000</button>
+  <button class="act sell" onclick="cryptoTrade('${c.tk}','sell')">Vender R$1.000</button></td></tr>`).join("")}</tbody></table></section>
+  <section><h2>Minha carteira cripto</h2><table><thead><tr><th>Ativo</th><th>Qtd.</th><th>Valor</th></tr></thead><tbody>
+  ${Object.entries(S.player.crypto).filter(([_,q])=>q>0).map(([tk,q])=>{const c=cryptos.find(x=>x.tk===tk);return `<tr><td>${tk}</td><td>${q.toFixed(6)}</td><td>${money(c.price*q)}</td></tr>`}).join("")||`<tr><td colspan="3" class="empty">Nenhuma posição.</td></tr>`}</tbody></table></section>`;
+}
+
+function newsHtml(n){
+  return S.news.slice(0,n).map(x=>`<div class="news-item"><div class="t">${esc(x.t)}</div>${esc(x.msg)}</div>`).join("")||`<div class="empty">Nenhuma notícia ainda.</div>`;
+}
+function pageNoticias(){return `<section><h2>Notícias</h2>${newsHtml(80)}</section>`}
+
+function countryTable(){
+  return `<table><thead><tr><th>País</th><th>PIB</th><th>Cresc.</th><th>Inflação</th><th>Desemprego</th><th>Juros</th><th>Dívida/PIB</th><th>Confiança</th></tr></thead><tbody>
+  ${countries.map(c=>`<tr><td>${c.name}</td><td>${num(c.gdp)} bi</td><td>${c.growth.toFixed(1)}%</td><td>${c.inflation.toFixed(1)}%</td><td>${c.unemployment.toFixed(1)}%</td><td>${c.rate.toFixed(2)}%</td><td>${c.debt.toFixed(0)}%</td><td>${c.confidence.toFixed(0)}</td></tr>`).join("")}</tbody></table>`;
+}
+function pageEconomia(){
+  return `<section><h2>Economia</h2>${countryTable()}
+  <p class="small">No modelo do jogo, juros maiores tendem a aumentar o retorno exigido pelos investidores e podem pressionar ativos de risco; juros menores tendem a fazer o contrário. O efeito não é instantâneo nem determinístico.</p></section>`;
+}
+
+function render(page){
+  const el=$("pages");const pages={inicio:pageInicio,acoes:pageAcoes,rendafixa:pageRendaFixa,moedas:pageMoedas,cripto:pageCripto,banco:pageBanco,cartao:pageCartao,dividas:pageDividas,tributos:pageTributos,empresas:pageEmpresas,carteira:pageCarteira,noticias:pageNoticias,economia:pageEconomia};
+  el.innerHTML=(pages[page]||pageInicio)();bindPage();updateLiveAction();
+}
+function bindPage(){const type=$("ordType"),wrap=$("priceWrap");if(type&&wrap){const update=()=>wrap.style.display=type.value==="market"?"none":"block";type.onchange=update;update();}}
+
+/* =========================
+   CAPITAL MARKET V2 — INTEGRAÇÃO INCREMENTAL
+========================= */
+const CM_SAVE_KEY="capital-market-save-v2";
+const DEV_TEST_MODE={enabled:false,key:"CM-DEV-2026-TEST"};
+const TAX_RULES={BR:{income:.275,capital:.15,interest:.15,profit:.20},US:{income:.24,capital:.15,interest:.24,profit:.21},JP:{income:.20,capital:.20,interest:.20,profit:.23},DE:{income:.25,capital:.25,interest:.25,profit:.15},UK:{income:.20,capital:.20,interest:.20,profit:.25}};
+function pc(){return countries.find(c=>c.id===S.player.countryId)||countries[0]}
+function localUSD(){return Number(S.player.fxRate)||pc().fx||1}
+function setCurrency(){window.__CM_CCY__=S.player.currency||pc().ccy}
+function usd500(){return 500*localUSD()}
+function totalDebt(){return (S.player.debts||[]).reduce((a,d)=>a+Math.max(0,d.balance||0),0)+(S.player.loans||0)+(S.player.card?.bill||0)}
+function activeDebts(){return (S.player.debts||[]).filter(d=>d.balance>0.005)}
+function taxRate(k){return TAX_RULES[S.player.countryId]?.[k]||.15}
+function addTax(type,amount,reason){amount=Math.max(0,Number(amount)||0);if(!amount)return;S.player.taxes=S.player.taxes||{paid:0,accrued:0,byType:{}};S.player.taxes.paid+=amount;S.player.taxes.byType[type]=(S.player.taxes.byType[type]||0)+amount;S.player.taxLog=S.player.taxLog||[];S.player.taxLog.unshift({tick:S.tick,type,amount,reason});S.player.taxLog=S.player.taxLog.slice(0,100)}
+function normalizePlayer(){const c=pc();S.player.countryId=S.player.countryId||"BR";S.player.currency=c.ccy;S.player.fxRate=c.fx;S.player.stocks=S.player.stocks||{};S.player.stockCost=S.player.stockCost||{};S.player.stockBasis=S.player.stockBasis||{};S.player.bonds=S.player.bonds||[];S.player.crypto=S.player.crypto||{};S.player.cryptoBasis=S.player.cryptoBasis||{};S.player.history=S.player.history||[];S.player.debts=S.player.debts||[];S.player.taxes=S.player.taxes||{paid:0,accrued:0,byType:{}};S.player.taxLog=S.player.taxLog||[];S.player.companies=S.player.companies||[];S.player.ipos=S.player.ipos||[];setCurrency()}
+function saveGame(show){if(!S.player.name)return;try{localStorage.setItem(CM_SAVE_KEY,JSON.stringify({version:2,state:{tick:S.tick,speed:S.speed,paused:S.paused,currentPage:S.currentPage,selectedStock:S.selectedStock,news:S.news,lastInterestTick:S.lastInterestTick,orders:S.orders},player:S.player,companies, bonds, cryptos, countries}));if(show)toast("Progresso salvo.")}catch(e){console.warn("localStorage",e)}}
+function loadGame(){try{const raw=localStorage.getItem(CM_SAVE_KEY);if(!raw)return false;const d=JSON.parse(raw);if(!d.player?.name)return false;Object.assign(S,d.state||{});Object.assign(S.player,d.player);if(Array.isArray(d.companies)&&d.companies.length){companies.length=0;d.companies.forEach(c=>{companies.push(c);refillBook(c)})}if(Array.isArray(d.bonds)&&d.bonds.length){bonds.splice(0,bonds.length,...d.bonds)}if(Array.isArray(d.cryptos)&&d.cryptos.length){cryptos.splice(0,cryptos.length,...d.cryptos)}if(Array.isArray(d.countries)&&d.countries.length){countries.splice(0,countries.length,...d.countries)}normalizePlayer();recalcPortfolio();return true}catch(e){console.warn("Falha ao carregar",e);return false}}
+function updateScore(){const card=S.player.card,util=card?.limit?card.used/card.limit:0,debts=activeDebts();let score=650;score+=Math.min(90,Math.max(0,S.player.netWorth)/Math.max(1,usd500())*15);score-=Math.min(180,util*220);score-=debts.filter(d=>d.overdue).length*55;if(!debts.length)score+=25;S.player.score=clamp(Math.round(score),300,900)}
+function creditLimit(){return Math.max(100,Math.min(50000,usd500()*(S.player.score/650)+Math.max(0,S.player.netWorth)*.12))}
+function applyCapitalTax(gain){if(gain<=0)return 0;const t=gain*taxRate("capital");addTax("capital",t,"Ganho de capital realizado");return t}
+  if(!Number.isFinite(qty)||qty<=0)return toast("Quantidade inválida.");
+  if(!market&&(!Number.isFinite(limit)||limit<=0))return toast("Preço limite inválido.");
+
+  if(side==="buy"){
+    if((market?bestAsk(c):limit)*qty>S.player.cash)return toast("Caixa insuficiente.");
+  }else{
+    const have=S.player.stocks[c.ticker]||0;
+    const reserved=(S.orders||[]).filter(o=>o.ticker===c.ticker&&o.side==="sell").reduce((a,o)=>a+o.qty,0);
+    if(have-reserved<qty)return toast("Ações insuficientes (parte já está reservada em ordens pendentes).");
+  }
+
+  const orderId=!market?("O"+S.tick+"-"+Date.now()+"-"+Math.random().toString(36).slice(2,7)):null;
+  const r=matchOrder(c,side,market?0:limit,qty,market,orderId);
+  if(r.filled<=0 && r.remaining<=0)return toast("Ordem não executada. Ela não cruzou o livro.");
+
+  let msg="";
+  if(r.filled>0){
+    const avg=r.cost/r.filled;
+    if(side==="buy"){
+      S.player.cash-=r.cost;
+      S.player.stocks[c.ticker]=(S.player.stocks[c.ticker]||0)+r.filled;
+      S.player.stockCost[c.ticker]=(S.player.stockCost[c.ticker]||0)+r.cost;
+      S.player.stockBasis[c.ticker]=(S.player.stockBasis[c.ticker]||0)+r.cost;
+    }else{
+      const oldQty=S.player.stocks[c.ticker]||0,oldCost=S.player.stockCost[c.ticker]||0,avgCost=oldQty?oldCost/oldQty:0,gain=(avg-avgCost)*r.filled,tax=applyCapitalTax(gain);
+      S.player.cash+=r.cost-tax;
+      S.player.stocks[c.ticker]=oldQty-r.filled;
+      S.player.stockCost[c.ticker]=Math.max(0,oldCost-avgCost*r.filled);
+      S.player.stockBasis[c.ticker]=Math.max(0,(S.player.stockBasis[c.ticker]||0)-avgCost*r.filled);
+      if(S.player.stocks[c.ticker]<=0){delete S.player.stocks[c.ticker];delete S.player.stockCost[c.ticker];delete S.player.stockBasis[c.ticker]}
+    }
+    msg=`${side==="buy"?"Compra":"Venda"} executada: ${r.filled} ${c.ticker} a ${money(avg)}.`;
+  }
+
+  if(r.remaining>0 && !market && orderId){
+    if(side==="buy"){
+      /* Reserva o caixa do restante ao preço limite, para não poder ser gasto
+         duas vezes enquanto a ordem aguarda no livro. */
+      S.player.cash-=r.remaining*limit;
+      S.orders.push({id:orderId,companyId:c.id,ticker:c.ticker,side,qty:r.remaining,price:limit});
+    }else{
+      /* Reserva (retira da carteira) as ações do restante, mantendo o custo
+         médio por ação para apurar o imposto corretamente quando a ordem
+         for liquidada mais tarde. */
+      const oldQty=S.player.stocks[c.ticker]||0,oldCost=S.player.stockCost[c.ticker]||0,avgCost=oldQty?oldCost/oldQty:0;
+      S.player.stocks[c.ticker]=Math.max(0,oldQty-r.remaining);
+      S.player.stockCost[c.ticker]=Math.max(0,oldCost-avgCost*r.remaining);
+      S.player.stockBasis[c.ticker]=Math.max(0,(S.player.stockBasis[c.ticker]||0)-avgCost*r.remaining);
+window.cancelOrder=cancelOrder;
+function requestCard(){if(S.player.card)return toast("Você já possui um cartão.");updateScore();S.player.card={limit:creditLimit(),used:0,bill:0,dueTick:S.tick+43200,interestRate:.03,late:false,payments:0,status:"Ativo"};saveGame(true);render("cartao")}
+function useCard(){if(!S.player.card)return requestCard();const v=Number($("cardUseAmt")?.value)||0;if(v<=0||v>Math.max(0,S.player.card.limit-S.player.card.used))return toast("Valor inválido ou limite insuficiente.");S.player.card.used+=v;S.player.card.bill+=v;recalcPortfolio();saveGame(false);render("cartao")}
+function payCard(){if(!S.player.card)return;const v=Math.min(Number($("cardPayAmt")?.value)||0,S.player.card.bill,S.player.cash);if(v<=0)return toast("Pagamento inválido.");S.player.cash-=v;S.player.card.bill-=v;S.player.card.used=Math.max(0,S.player.card.used-v);S.player.card.late=false;S.player.card.dueTick=S.tick+43200;S.player.card.payments++;recalcPortfolio();saveGame(false);render("cartao")}
+function createDebt(type,amount,rate,term,label){amount=Number(amount)||0;term=Math.max(1,Math.floor(Number(term)||1));if(amount<=0)return null;const r=rate*Math.pow(1+rate,term)/(Math.pow(1+rate,term)-1||1);const d={id:"D"+Date.now()+Math.random(),type,label,original:amount,balance:amount,rateMonthly:rate,term,remaining:term,nextDue:S.tick+43200,installment:amount*r,overdue:false};S.player.debts.push(d);return d}
+function requestFinancing(){const amount=Number($("finAmount")?.value)||0,term=Number($("finTerm")?.value)||0;if(amount<=0||term<=0)return toast("Informe valor e prazo.");updateScore();const max=usd500()*(S.player.score/650)+Math.max(0,S.player.netWorth)*.2;if(amount>max)return toast(`Limite estimado: ${money(max)}.`);const rate=.018+Math.max(0,650-S.player.score)/100000;createDebt("financiamento",amount,rate,term,"Financiamento pessoal");S.player.cash+=amount;recalcPortfolio();saveGame(false);render("dividas")}
+function payDebt(id){const d=S.player.debts.find(x=>x.id===id);if(!d)return;const v=Math.min(d.installment,S.player.cash,d.balance);if(v<=0)return toast("Caixa insuficiente.");S.player.cash-=v;d.balance=Math.max(0,d.balance-v);d.remaining=Math.max(0,d.remaining-1);d.overdue=false;d.nextDue=S.tick+43200;recalcPortfolio();saveGame(false);render("dividas")}
+function processDebtCycle(){if(S.player.card&&S.tick>=S.player.card.dueTick&&S.player.card.bill>0){S.player.card.bill*=1+S.player.card.interestRate;S.player.card.used=S.player.card.bill;S.player.card.late=true;S.player.card.dueTick=S.tick+43200}for(const d of S.player.debts||[]){if(d.balance>0&&S.tick>=d.nextDue){d.balance*=1+d.rateMonthly;d.overdue=true;d.nextDue=S.tick+43200;d.remaining=Math.max(0,d.remaining-1)}}}
+function creditCycle(){updateScore();if(S.player.card){S.player.card.limit=creditLimit();if(S.player.card.limit<S.player.card.used)S.player.card.limit=S.player.card.used}}
+function accrueMonthly(){
+  if(S.tick%43200!==0)return;
+  const bankInterest=S.player.bank*.003;S.player.bank+=bankInterest;
+  const loanInterest=S.player.loans*.018;S.player.loans+=loanInterest;
+  const bondInterest=(S.player._bondVal||0)*(pc().rate/100)/12;
+  const tax=bondInterest*taxRate("interest");
+  if(bondInterest>0){S.player.taxes.accrued+=tax;S.player.cash+=bondInterest-tax}
+  /* Os juros de S.player.debts já são aplicados por processDebtCycle() quando cada
+     dívida vence (d.nextDue). Aplicá-los de novo aqui cobraria juros duas vezes
+     no mesmo ciclo mensal. Não duplicar. */
+  toast("Rendimentos, juros e obrigações mensais atualizados.");
+}
+function buyBond(id){const b=bonds.find(x=>x.id===id);if(!b)return;const cost=b.price;if(S.player.cash<cost)return toast("Caixa insuficiente.");S.player.cash-=cost;const own=S.player.bonds.find(x=>x.id===id);if(own)own.qty++;else S.player.bonds.push({id,qty:1});recalcPortfolio();saveGame(false);render("rendafixa")}
+function bankAction(op){const v=Number($("bankAmt")?.value)||0;if(v<=0)return toast("Informe um valor válido.");if(op==="deposit"){if(v>S.player.cash)return toast("Caixa insuficiente.");S.player.cash-=v;S.player.bank+=v}else if(op==="withdraw"){if(v>S.player.bank)return toast("Saldo bancário insuficiente.");S.player.bank-=v;S.player.cash+=v}else if(op==="loan"){const max=usd500()*(S.player.score/650)+Math.max(0,S.player.netWorth)*.15;if(v>max)return toast(`Limite de crédito estimado: ${money(max)}.`);createDebt("empréstimo",v,.018,12,"Empréstimo bancário");S.player.cash+=v}else if(op==="pay"){const p=Math.min(v,S.player.loans,S.player.cash);if(p<=0)return toast("Pagamento inválido.");S.player.cash-=p;S.player.loans-=p}recalcPortfolio();saveGame(false);render("banco")}
+function cryptoTrade(tk,side){const c=cryptos.find(x=>x.tk===tk);if(!c)return;const amt=200*localUSD(),qty=amt/c.price;if(side==="buy"){if(S.player.cash<amt)return toast("Caixa insuficiente.");S.player.cash-=amt;S.player.crypto[tk]=(S.player.crypto[tk]||0)+qty;S.player.cryptoBasis[tk]=(S.player.cryptoBasis[tk]||0)+amt;c.price*=1.005}else{const have=S.player.crypto[tk]||0;if(have<=0)return toast("Sem saldo.");const q=Math.min(have,qty),gross=q*c.price,basis=(S.player.cryptoBasis[tk]||0)/(have||1)*q,tax=applyCapitalTax(gross-basis);S.player.cash+=gross-tax;S.player.crypto[tk]-=q;S.player.cryptoBasis[tk]=Math.max(0,(S.player.cryptoBasis[tk]||0)-basis);c.price*=.995}recalcPortfolio();saveGame(false);render("cripto")}
+function pageBanco(){return `<section><h2>Banco</h2><div class="grid kpi-grid"><div class="card"><div class="lbl">Saldo bancário</div><div class="val">${money(S.player.bank)}</div></div><div class="card"><div class="lbl">Empréstimos legados</div><div class="val">${money(S.player.loans)}</div></div><div class="card"><div class="lbl">Score</div><div class="val">${S.player.score}</div></div></div><div class="row" style="margin-top:8px"><input id="bankAmt" type="number" value="1000" min="1" placeholder="Valor"><button class="act" onclick="bankAction('deposit')">Depositar</button><button class="act" onclick="bankAction('withdraw')">Sacar</button><button class="act" onclick="bankAction('loan')">Empréstimo</button><button class="act sell" onclick="bankAction('pay')">Pagar empréstimo</button></div><p class="pill">Depósito: 0,3% ao mês · Empréstimo: 1,8% ao mês. O crédito também afeta o score.</p></section>`}
+function pageCartao(){const c=S.player.card;return `<div class="subtle">Crédito e histórico</div><h2>Cartão</h2><div class="grid kpi-grid"><div class="card"><div class="lbl">Score</div><div class="val">${S.player.score}</div></div><div class="card"><div class="lbl">Limite</div><div class="val">${money(c?.limit||0)}</div></div><div class="card"><div class="lbl">Disponível</div><div class="val">${money(c?Math.max(0,c.limit-c.used):0)}</div></div><div class="card"><div class="lbl">Fatura</div><div class="val">${money(c?.bill||0)}</div></div></div><section><h2>${c?"Cartão ativo":"Solicitar cartão"}</h2>${c?`<p class="pill">Status: <b>${c.status}</b> · Vencimento: <b>${Math.max(0,Math.ceil((c.dueTick-S.tick)/1440))} dia(s)</b> · Juros por atraso: <b>${(c.interestRate*100).toFixed(2)}% por ciclo</b> · ${c.late?'<b class="down">Em atraso</b>':'Em dia'}</p><div class="row"><input id="cardUseAmt" type="number" min="1" placeholder="Compra"><button class="act" onclick="useCard()">Usar cartão</button><input id="cardPayAmt" type="number" min="1" placeholder="Pagamento"><button class="act" onclick="payCard()">Pagar fatura</button></div>`:`<p class="pill">O limite é calculado com base no score, patrimônio e histórico. Não existe crédito infinito.</p><button class="act" onclick="requestCard()">Solicitar cartão</button>`}</section>`}
+function pageDividas(){return `<div class="subtle">Obrigações centralizadas</div><h2>Dívidas</h2><div class="grid kpi-grid"><div class="card"><div class="lbl">Dívida total</div><div class="val">${money(totalDebt())}</div></div><div class="card"><div class="lbl">Score</div><div class="val">${S.player.score}</div></div></div><section><h2>Financiamento</h2><div class="row"><input id="finAmount" type="number" placeholder="Valor"><input id="finTerm" type="number" min="1" value="12" placeholder="Prazo em meses"><button class="act" onclick="requestFinancing()">Solicitar financiamento</button></div></section><section><h2>Obrigações</h2><div class="table-scroll"><table><thead><tr><th>Tipo</th><th>Original</th><th>Saldo</th><th>Juros</th><th>Prazo</th><th>Status</th><th></th></tr></thead><tbody>${activeDebts().map(d=>`<tr><td>${esc(d.label)}</td><td>${money(d.original)}</td><td>${money(d.balance)}</td><td>${(d.rateMonthly*100).toFixed(2)}% a.m.</td><td>${d.remaining}</td><td>${d.overdue?"Em atraso":"Em dia"}</td><td><button class="act" onclick="payDebt('${d.id}')">Pagar</button></td></tr>`).join("")||'<tr><td colspan="7" class="empty">Nenhuma dívida.</td></tr>'}</tbody></table></div></section>`}
+function pageTributos(){const r=TAX_RULES[S.player.countryId]||TAX_RULES.BR;return `<div class="subtle">Fiscal: ${esc(pc().name)}</div><h2>Tributos</h2><div class="grid kpi-grid"><div class="card"><div class="lbl">Impostos pagos</div><div class="val">${money(S.player.taxes.paid)}</div></div><div class="card"><div class="lbl">Acumulados</div><div class="val">${money(S.player.taxes.accrued)}</div></div></div><section><h2>Alíquotas simuladas</h2><table><thead><tr><th>Tributo</th><th>Alíquota</th><th>Aplicação</th></tr></thead><tbody><tr><td>Renda</td><td>${r.income*100}%</td><td>Receitas tributáveis</td></tr><tr><td>Ganhos de investimentos</td><td>${r.capital*100}%</td><td>Ganho de capital realizado</td></tr><tr><td>Juros/renda fixa</td><td>${r.interest*100}%</td><td>Rendimentos de juros</td></tr><tr><td>Lucro</td><td>${r.profit*100}%</td><td>Lucro empresarial</td></tr></tbody></table></section><section><h2>Histórico de impostos</h2>${(S.player.taxLog||[]).slice(0,40).map(x=>`<div class="news-item"><span class="t">${esc(x.type)} · tick ${x.tick}</span><br>${esc(x.reason)} — <b>${money(x.amount)}</b></div>`).join("")||'<div class="empty">Nenhum imposto pago.</div>'}</section>`}
+function createCompany(){const name=$("coName")?.value.trim(),sector=$("coSector")?.value,country=$("coCountry")?.value,capital=Number($("coCapital")?.value)||0,shares=Math.floor(Number($("coShares")?.value)||0),price=Number($("coPrice")?.value)||0;if(!name||capital<=0||shares<=0||price<=0)return toast("Preencha os campos corretamente.");if(S.player.cash<capital)return toast("Caixa insuficiente para o capital inicial.");const ticker=(name.replace(/[^A-Za-z]/g,"").slice(0,4).toUpperCase()||"USER")+Math.floor(10+Math.random()*90);const c={id:"U"+Date.now()+Math.random(),ticker,name:name+" S.A.",country,sector,price,lastPrice:price,open:price,high:price,low:price,shares,volume:0,revenue:capital*.8,profit:capital*.08,debt:0,growth:4,divYield:1,volatility:1.8,hist:[price],bids:[],asks:[],userCreated:true,founder:S.player.name,ipo:{status:"draft",shares,price,raised:0,investors:[]}};seedBook(c);companies.push(c);S.player.cash-=capital;S.player.companies.push({id:c.id,name:c.name,equityValue:capital});saveGame(false);S.selectedStock=c.id;render("empresas")}
+function launchIPO(id){const c=companies.find(x=>x.id===id);if(!c)return;c.ipo.status="open";c.ipo.openTick=S.tick;c.ipo.raised=0;c.ipo.investors=[];saveGame(false);render("empresas")}
+function investIPO(id){const c=companies.find(x=>x.id===id);if(!c||c.ipo.status!=="open")return;const amount=Number($("ipoAmt_"+id)?.value)||0;if(amount<=0||amount>S.player.cash)return toast("Valor inválido.");const qty=Math.floor(amount/c.ipo.price),cost=qty*c.ipo.price;if(qty<=0)return toast("Valor insuficiente.");S.player.cash-=cost;S.player.stocks[c.ticker]=(S.player.stocks[c.ticker]||0)+qty;S.player.stockCost[c.ticker]=(S.player.stockCost[c.ticker]||0)+cost;S.player.stockBasis[c.ticker]=(S.player.stockBasis[c.ticker]||0)+cost;c.ipo.raised+=cost;c.ipo.investors.push({player:S.player.name,qty,cost});if(c.ipo.raised>=c.ipo.shares*c.ipo.price)c.ipo.status="secondary";recalcPortfolio();saveGame(false);render("empresas")}
+function pageEmpresas(){const mine=companies.filter(c=>c.userCreated&&c.founder===S.player.name),open=companies.filter(c=>c.ipo?.status==="open");return `<div class="subtle">Empreendedorismo e mercado primário</div><h2>Empresas</h2><section><h2>Criar empresa</h2><div class="form-grid"><input id="coName" placeholder="Nome da empresa"><div class="row"><select id="coSector">${["Inteligência Artificial","Bancos Privados","Tecnologia","Energia","Mineração","Indústria","Varejo","Saúde","Telecom","Agricultura","Transporte"].map(x=>`<option>${x}</option>`).join("")}</select><select id="coCountry">${countries.map(c=>`<option value="${c.id}">${c.name}</option>`).join("")}</select></div><div class="row"><input id="coCapital" type="number" placeholder="Capital inicial"><input id="coShares" type="number" placeholder="Ações"><input id="coPrice" type="number" step=".01" placeholder="Preço inicial"></div><button class="act" onclick="createCompany()">Criar empresa</button></div></section><section><h2>Minhas empresas</h2>${mine.map(c=>`<div class="card" style="margin-bottom:8px"><b>${esc(c.name)}</b> · ${c.ticker}<p class="small">${esc(c.sector)} · ${pcName(c.country)} · IPO: ${c.ipo.status} · Captado: ${money(c.ipo.raised||0)}</p>${c.ipo.status==="draft"?`<button class="act" onclick="launchIPO('${c.id}')">Abrir IPO</button>`:""}</div>`).join("")||'<div class="empty">Nenhuma empresa criada.</div>'}</section><section><h2>IPOs abertos</h2>${open.map(c=>`<div class="card" style="margin-bottom:8px"><b>${esc(c.name)} (${c.ticker})</b><p class="small">${esc(c.sector)} · ${pcName(c.country)} · ${money(c.ipo.price)} por ação · Captado ${money(c.ipo.raised||0)}</p><div class="row"><input id="ipoAmt_${c.id}" type="number" min="1" placeholder="Valor"><button class="act" onclick="investIPO('${c.id}')">Investir</button></div></div>`).join("")||'<div class="empty">Nenhum IPO aberto.</div>'}</section>`}
+function pcName(id){return countries.find(c=>c.id===id)?.name||id}
+function portfolioAnalysis(){const assets={"Ações":S.player._stockVal||0,"Renda fixa":S.player._bondVal||0,"Cripto":S.player._cryptoVal||0,"Caixa":S.player.cash+S.player.bank},total=Math.max(0,S.player.netWorth),debt=totalDebt(),vals=Object.values(assets),max=Math.max(...vals,0),concentration=total?max/total:0,leverage=(total+debt)>0?debt/(total+debt):0,hist=S.player.history||[],ret=hist.length>1?(S.player.netWorth-hist[0])/Math.max(1,Math.abs(hist[0])):0,vol=hist.length>3?Math.sqrt(hist.slice(1).reduce((sum,x,i)=>sum+(((x-hist[i])/Math.max(1,Math.abs(hist[i])))**2),0)/(hist.length-1))*100:0,risk=clamp(concentration*55+leverage*35+vol*2+(S.player._cryptoVal/Math.max(1,total))*25,0,100),score=clamp(100-risk+Math.max(0,ret*100),0,100);const sectors={},countriesExp={};for(const [tk,q] of Object.entries(S.player.stocks)){const c=companies.find(x=>x.ticker===tk);if(!c)continue;const v=c.price*q;sectors[c.sector]=(sectors[c.sector]||0)+v;countriesExp[c.country]=(countriesExp[c.country]||0)+v}return{assets,total,concentration,leverage,ret,vol,risk,score,sectors,countriesExp}}
+function pageCarteira(){const a=portfolioAnalysis();return `<div class="grid kpi-grid"><div class="card"><div class="lbl">Patrimônio líquido</div><div class="val">${money(S.player.netWorth)}</div></div><div class="card"><div class="lbl">Liquidez</div><div class="val">${money(S.player.cash+S.player.bank)}</div></div><div class="card"><div class="lbl">Endividamento</div><div class="val">${(a.leverage*100).toFixed(1)}%</div></div><div class="card"><div class="lbl">Score da carteira</div><div class="val">${a.score.toFixed(0)}/100</div></div></div><section><h2>Análise da Carteira</h2><div class="grid kpi-grid"><div class="card"><div class="lbl">Liquidez</div><div class="val">${money(S.player.cash+S.player.bank)}</div></div><div class="card"><div class="lbl">Concentração</div><div class="val">${(a.concentration*100).toFixed(1)}%</div></div><div class="card"><div class="lbl">Exposição a risco</div><div class="val">${a.risk.toFixed(1)}/100</div></div><div class="card"><div class="lbl">Desempenho</div><div class="val ${a.ret>=0?"up":"down"}">${(a.ret*100).toFixed(2)}%</div></div><div class="card"><div class="lbl">Volatilidade</div><div class="val">${a.vol.toFixed(2)}%</div></div></div><h2 style="margin-top:14px">Classes de ativos</h2><table><thead><tr><th>Classe</th><th>Valor</th><th>%</th></tr></thead><tbody>${Object.entries(a.assets).map(([k,v])=>`<tr><td>${k}</td><td>${money(v)}</td><td>${a.total?(v/a.total*100).toFixed(1):"0.0"}%</td></tr>`).join("")}</tbody></table><h2 style="margin-top:14px">Exposição por setor</h2>${Object.entries(a.sectors).map(([k,v])=>`<div class="news-item">${esc(k)} <b style="float:right">${money(v)}</b></div>`).join("")||'<div class="empty">Sem ações.</div>'}<h2 style="margin-top:14px">Exposição por país</h2>${Object.entries(a.countriesExp).map(([k,v])=>`<div class="news-item">${pcName(k)} <b style="float:right">${money(v)}</b></div>`).join("")||'<div class="empty">Sem ações.</div>'}</section><section><h2>Evolução do patrimônio</h2><div style="height:180px">${sparkline(S.player.history)}</div></section><section><h2>Ações em carteira</h2>${Object.entries(S.player.stocks).map(([tk,q])=>{const c=companies.find(x=>x.ticker===tk);return c?`<div class="news-item"><b>${tk}</b> · ${q} ações <span style="float:right">${money(c.price*q)}</span></div>`:""}).join("")||'<div class="empty">Nenhuma ação.</div>'}</section>`}
+function enterMarket(){const name=$("loginName").value.trim(),id=$("loginCountry").value;if(!name)return toast("Informe seu nome.");const c=countries.find(x=>x.id===id);S.player={...S.player,name,countryId:id,currency:c.ccy,fxRate:c.fx,cash:500*c.fx,bank:0,loans:0,stocks:{},stockCost:{},stockBasis:{},bonds:[],crypto:{},cryptoBasis:{},history:[],netWorth:500*c.fx,_stockVal:0,_bondVal:0,_cryptoVal:0,_debtVal:0,debts:[],card:null,score:650,taxes:{paid:0,accrued:0,byType:{income:0,capital:0,interest:0,profit:0}},taxLog:[],companies:[],ipos:[],income:0,expenses:0};setCurrency();recalcPortfolio();saveGame(false);$("loginOverlay").style.display="none";renderTop();render("inicio");const devCode=$("devCode")?.value.trim();if(devCode){if(window.enableDeveloperTestMode(devCode))toast(`Bem-vindo, ${name} · Modo DEV ativado`);else toast(`Bem-vindo, ${name} · Código DEV inválido`)}else toast(`Bem-vindo, ${name}`)}
+window.enableDeveloperTestMode=function(key){if(key!==DEV_TEST_MODE.key)return false;DEV_TEST_MODE.enabled=true;S.player.cash=1e12;S.player.bank=1e12;S.player.score=900;S.player.card={limit:1e12,used:0,bill:0,dueTick:S.tick+1e9,interestRate:.001,late:false,payments:0,status:"Developer Test"};recalcPortfolio();saveGame(false);return true}
+window.disableDeveloperTestMode=function(){DEV_TEST_MODE.enabled=false;return true}
+function resetGame(){try{localStorage.removeItem(CM_SAVE_KEY)}catch(e){console.warn("localStorage",e)}location.reload()}
+function boot(){const loaded=loadGame();$("enterMarket").onclick=enterMarket;$("newGameFromLogin").onclick=resetGame;$("newGameBtn").onclick=()=>{if(confirm("Apagar todo o progresso e começar novamente?"))resetGame()};if(loaded){$("loginOverlay").style.display="none";setCurrency();recalcPortfolio();renderTop();render(S.currentPage)}else{$("loginOverlay").style.display="flex";$("loginName").focus()}startLoop()}
+
+S.news.push({t:fmtClock(),msg:"Bem-vindo ao Capital Market. O mercado virtual está aberto."});
+boot();
+</script>
+ </body>
+</html>
